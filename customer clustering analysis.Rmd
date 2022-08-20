@@ -51,15 +51,17 @@ transactions %>%
 # total average spend per customer
 
 transactionsspend <- transactions %>% 
-    select(customer_id,value.amount) %>% 
+    select(customer_id,value.amount,income,event) %>% 
+    filter(event == "transaction") %>% 
     group_by(customer_id) %>% 
-    summarise(averagespent = mean(value.amount, na.rm = TRUE))
+    summarise(averagespent = mean(value.amount,na.rm = TRUE),
+              averageincome = mean(income, na.rm = TRUE))  
 
 transactionsspend
 ```
 ```{r}
 transactionsspend %>% 
-    summary(averagespent)
+    summary()
 
 
 ```
@@ -69,11 +71,29 @@ transactionsspend %>%
 ```
 
 ```{r}
+#distribution of averagespent
+
 library(tidyverse)
 
 transactionsspend %>% 
-    ggplot(aes(x= avergespent)) + geom_histogram()
+    ggplot(aes(x= averagespent)) + geom_histogram()
 ```
+```{r}
+##Distribution of average income
+
+transactionsspend %>% 
+    ggplot(aes(x= averageincome)) + geom_histogram()
+```
+
+```{r}
+##relationship between income and averagespend
+
+transactionsspend %>% 
+    ggplot(aes(x= averageincome,
+               y = averagespent)) + geom_point()
+
+```
+
 
 ```{r}
 ##Binning the data by creating ranks using the average spend
@@ -90,5 +110,6 @@ transactionsbin %>%
 ```
 ```{r}
 ##K means clustering
+
 ```
 

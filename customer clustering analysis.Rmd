@@ -1,0 +1,94 @@
+---
+title: "Customer segmentation"
+output: html_document
+date: "2022-08-20"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+##load necessary libraries
+
+library(tidyverse)
+library(readxl)
+library(here)
+library(readr)
+```
+
+```{r}
+##import data
+
+transactions <- read_csv("cleancsv.csv")
+
+
+transactions
+```
+
+```{r}
+glimpse(transactions)
+```
+
+```{r}
+##statistical summary
+library(skimr)
+skim(transactions)
+
+```
+
+
+
+```{r}
+#data exploration
+
+transactions %>% 
+    distinct(customer_id,income,value.amount,event)
+```
+```{r}
+
+# total average spend per customer
+
+transactionsspend <- transactions %>% 
+    select(customer_id,value.amount) %>% 
+    group_by(customer_id) %>% 
+    summarise(averagespent = mean(value.amount, na.rm = TRUE))
+
+transactionsspend
+```
+```{r}
+transactionsspend %>% 
+    summary(averagespent)
+
+
+```
+```{r}
+transactionsspend %>% 
+    filter(averagespent > 200)
+```
+
+```{r}
+library(tidyverse)
+
+transactionsspend %>% 
+    ggplot(aes(x= avergespent)) + geom_histogram()
+```
+
+```{r}
+##Binning the data by creating ranks using the average spend
+
+transactionsbin <- transactionsspend %>% 
+    mutate(spendingscore = ntile(transactionsspend$averagespent,10))
+
+transactionsbin
+```
+
+```{r}
+transactionsbin %>% 
+    filter(averagespent > 200)
+```
+```{r}
+##K means clustering
+```
+

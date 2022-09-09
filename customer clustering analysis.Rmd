@@ -41,19 +41,36 @@ skim(transactions)
 
 
 ```{r}
+ 
+```
+```{r}
+#impute customer id with numbers
+
+transactionsdf <- transactions %>% 
+    group_by(customer_id) %>% 
+    mutate(ID = cur_group_id()) %>% 
+    arrange(ID) %>% 
+    ungroup()
+
+transactionsdf
+
+```
+```{r}
 #data exploration
 
-transactions %>% 
-    distinct(customer_id,income,value.amount,event)
+transactionsdf %>% 
+    select(ID,income,value.amount,event,offer_type) %>% 
+    distinct(ID,income,value.amount,event,offer_type)
 ```
+
 ```{r}
 
 # total average spend per customer
 
-transactionsspend <- transactions %>% 
-    select(customer_id,value.amount,income,event) %>% 
+transactionsspend <- transactionsdf %>% 
+    select(ID,value.amount,income,event) %>% 
     filter(event == "transaction") %>% 
-    group_by(customer_id) %>% 
+    group_by(ID) %>% 
     summarise(averagespent = mean(value.amount,na.rm = TRUE),
               averageincome = mean(income, na.rm = TRUE))  
 
@@ -66,6 +83,7 @@ transactionsspend %>%
 
 ```
 ```{r}
+#Identify outliers
 transactionsspend %>% 
     filter(averagespent > 200)
 ```
@@ -76,7 +94,8 @@ transactionsspend %>%
 library(tidyverse)
 
 transactionsspend %>% 
-    ggplot(aes(x= averagespent)) + geom_histogram()
+    filter(averagespent < 200) %>% 
+    ggplot(aes(x= averagespent)) + geom_boxplot(fill = '#006EA1', color = 'black')
 ```
 ```{r}
 ##Distribution of average income
